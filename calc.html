@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		.calc {
+		  position: relative;
+		  width: 300px;
+		  height: 520px;
+		  border: 3px solid #3399ff;
+		  border-radius: 10px;
+		  background: #e6e6e6;
+		  margin: 0 auto;
+		}
+		.display {
+		  position: relative;
+		  width: 280px;
+		  height: 75px;
+		  background: #fff;
+		  border: 1px solid #3399ff;
+		  margin: 10px auto;
+		  border-radius: 5px;
+		  text-align: right;
+		  font-size: 25px;
+		  padding: 30px 5px 0px 5px;
+		  box-sizing: border-box;
+		  font-family: Arial, sans-serif;
+		}
+		#m {
+		  position: absolute;
+		  width: 30px;
+		  height: 20px;
+		  top: 2px;
+		  left: 10px;
+		  font-size: 15px;
+		  text-align: left;
+		}
+		.buttons {
+		  position: relative;
+		}
+		.buttons div {
+		  width: 60px;
+		  height: 60px;
+		  border: 1px solid #3399ff;
+		  border-radius: 5px;
+		  position: absolute;
+		  background: #f2f2f2;
+		  text-align: center;
+		  font-size: 30px;
+		  font-family: Arial, sans-serif;
+		  padding-top: 10px;
+		  box-sizing: border-box;
+		}
+		#memory_rc, #memory {font-size: 25px;}
+		#memory_rc {padding-top: 0}
+		#memory{padding-top: 13px;}
+		#equal{padding-top: 45px;}
+		#square_root {
+		  background: #f2f2f2 url("http://www.clker.com/cliparts/6/d/7/4/13282974981611641133square_root.svg.med.png")    
+		  no-repeat center;
+		  background-size: 60% 60%;
+		}
+		#equal {height: 130px;}
+		#clean {background: #cccccc;}
+		/*left positions*/
+		#clean, #bs, #num_7, #num_4, #num_1, #memory_rc {left: 10px;}
+		#num_8, #num_5, #num_2, #persent, #num_0, #memory {left: 83px;}
+		#plus_minus, #num_9, #num_6, #num_3, #dot, #divide {left: 156px;}
+		#square_root, #equal, #plus, #minus, #mult {left: 229px;}
+		/*top positions*/
+		#divide, #mult, #persent, #bs {top: 70px;}
+		#num_7, #num_8, #num_9, #plus {top: 140px;}
+		#num_4, #num_5, #num_6, #minus {top: 210px;}
+		#num_1, #num_2, #num_3, #equal {top: 280px;}
+		#num_0, #dot, #clean {top: 350px;}
+	</style>
+</head>
+<body>
+	<div class="calc">
+	  <div class="display">
+	    <div id="m"></div>
+	    <div id="display_numbers"></div>
+	  </div>
+	  <div class="buttons">
+	    <div id="num_0">0</div>
+	    <div id="num_1">1</div>
+	    <div id="num_2">2</div>
+	    <div id="num_3">3</div>
+	    <div id="num_4">4</div>
+	    <div id="num_5">5</div>
+	    <div id="num_6">6</div>
+	    <div id="num_7">7</div>
+	    <div id="num_8">8</div>
+	    <div id="num_9">9</div>
+	    <div id="dot">.</div>
+	    <div id="bs">&larr;</div>
+	    <div id="clean">C</div>
+	    <div id="plus_minus">+/-</div>
+	    <div id="square_root"></div>
+	    <div id="equal">=</div>
+	    <div id="plus">+</div>
+	    <div id="minus">-</div>
+	    <div id="mult">*</div>
+	    <div id="divide">/</div>
+	    <div id="persent">%</div>
+	    <div id="memory">M+/-</div>
+	    <div id="memory_rc">MR<br/>MC</div>
+	  </div>
+	</div>
+<script type="text/javascript">
+	var INPUT_CAPASITY = 19;
+	var a, b, memory;
+	var input = "";
+	var operations = {
+		plus: true,
+		minus: false,
+		mult: false,
+		divide: false,
+		persent: false
+	};
+	
+	var display = document.getElementById("display_numbers");
+	var memory_indicator = document.getElementById("m");
+	
+
+	for (var i = 1; i<10; i++) {
+		configNumInput("num_" + i);
+	}
+
+	configZeroInput("num_0");
+	configdot();
+	configSign();
+	configBackspace();
+	configSquareRoot();
+	configClean();
+	configEqual();
+	configOperations("plus");
+	configOperations("minus");
+	configOperations("divide");
+	configOperations("mult");
+	configOperations("persent");
+	setMemorize();
+	setMemoryRemain();
+	
+
+	function configNumInput(id) {
+		var button = document.getElementById(id);
+		button.addEventListener("click", function() {
+			if (input.length < INPUT_CAPASITY) {
+				
+				if (input[0] == '0') {
+
+					if (input[1] == '.') {
+						enterDigit();
+					}
+
+				} else if (input[0] == '-') {
+					if (input[1] == '0') {
+						if (input[2] == '.') {
+							enterDigit();
+						}
+					} else {
+						enterDigit();
+					}
+				} else {
+					enterDigit();
+				}
+				
+			}
+		});
+
+		function enterDigit() {
+			input += button.childNodes[0].textContent;
+			display.innerHTML = input;
+		}
+	}
+
+	function configZeroInput(id) {
+		var button = document.getElementById(id);
+		button.addEventListener("click", function() {
+			if (input.length < INPUT_CAPASITY) {
+				
+				if (!input[0]) {
+					enterDigit();
+				}
+				else if (input[0] == "-") {
+					
+					if (input[1] == "0") {
+						if (input[2] == ".")
+							enterDigit();
+					}
+					else if (input[1] != "0") {
+						enterDigit();
+					}
+
+				}
+				else if (parseInt(input[0])) {
+					enterDigit();
+				}
+				else if (input[0] == "0") {
+					
+					if (input[1] == ".")
+						enterDigit();
+					
+				}
+				
+			}
+		});
+
+		function enterDigit() {
+			input += button.childNodes[0].textContent;
+			display.innerHTML = input;
+		}
+	}
+
+	function configdot() {
+		var dot = document.getElementById("dot");
+		
+		dot.addEventListener("click", function() {
+			if (input.indexOf(".") == -1 && 
+				(input.length > 0 && input.length < INPUT_CAPASITY - 1)) {
+					input += dot.childNodes[0].textContent;
+					display.innerHTML = input;
+			}
+		});
+	}
+
+	function configSign() {
+		var sign = document.getElementById("plus_minus");
+		var signIsOn = false;
+		sign.addEventListener("click", function() {
+			if (input.length < INPUT_CAPASITY) {
+				if (!signIsOn) {
+					input = "-" + input;
+					signIsOn = !signIsOn;
+					display.innerHTML = input;
+				} 
+				else {
+					temp = "";
+					for (var i = 1, n = input.length; i < n; i++) {
+						temp += input[i];
+					}
+					input = temp;
+
+					signIsOn = !signIsOn;
+					display.innerHTML = input;
+				}
+			}
+		});
+	}
+
+	function configBackspace() {
+		var bs = document.getElementById("bs");
+		bs.addEventListener("click", function() {
+			var tmp = input;
+			input = "";
+			for (var i = 0, n = tmp.length - 1; i < n; i++) {
+				input += tmp[i];
+			}
+			display.innerHTML = input;
+		});
+	}
+
+	function configSquareRoot() {
+		var sqrt = document.getElementById("square_root");
+		sqrt.addEventListener("click", function() {
+			var tmp = parseFloat(input);
+			
+			if (tmp >= 0) {
+				input = String(Math.sqrt(tmp));
+				display.innerHTML = input;
+			}
+			else if (tmp < 0){	
+				input = 'error';
+				display.innerHTML = input;
+			}
+			
+		});
+	}
+
+	function configClean() {
+		var clean = document.getElementById("clean");
+		clean.addEventListener("click", function() {
+			input = "";
+			display.innerHTML = input;
+			a = null;
+			b = null;
+		});
+	}
+
+	function configOperations(id) {
+		document.getElementById(id).addEventListener("click", function() {
+			if (!operations[id]) {
+				
+				if (input != "") {
+
+					if (a) {
+						b = parseFloat(input);
+						a = makeComputation(a, b);
+						display.innerHTML = a;
+						input = "";
+						setOperation(id);
+					} 
+					else {
+						a = parseFloat(input);
+						setOperation(id);
+						input = "";
+					}
+
+				}
+				else if (input == "") {
+					if (a) {
+						setOperation(id);
+					}
+					else {
+						//nothing to do
+					}
+				}
+			}
+			else if (operations[id]) {
+				if (input != "") {
+
+					if(a) {
+						b = parseFloat(input);
+						a = makeComputation(a, b);
+						display.innerHTML = a;
+						input = "";
+					}
+					else {
+						a = parseFloat(input);
+						input = "";
+					}
+
+				}
+				else if (input == "") {
+					//nothing to do
+				}
+			}
+		});	
+	}
+
+	function configEqual() {
+		document.getElementById("equal").addEventListener("click", function() {
+			if (a) {
+				if (input != "") {
+					b = parseFloat(input);
+					a = makeComputation(a, b);
+					display.innerHTML = a;
+					input = "";
+				}
+				else if (input == "") {
+
+					if (b) {
+						a = makeComputation(a, b);
+						display.innerHTML = a;
+						input = "";
+					}
+					else {
+						//nothing to do
+					}
+
+				}
+			}
+			else {
+				//nothing to do
+			}
+		});
+	}
+
+	function makeComputation (x, y) {
+			if (operations.plus)
+				return x + y;
+			if (operations.minus) 
+				return x - y;
+			if (operations.divide) {
+				if (y != 0)
+					return x / y;
+				else
+					return 'error';
+			}
+			if (operations.mult)
+				return x * y;
+			if (operations.persent)
+				return x * y / 100;
+	}
+
+	function setOperation(o) {
+		for (key in operations) {
+			operations[key] = false;
+		}
+		operations[o] = true;
+	}
+
+	function setMemorize () {
+ 		document.getElementById("memory").addEventListener("click", function() {
+			if (input != "") {
+
+				if (!memory) {
+					memory = parseFloat(input);
+					memory_indicator.innerHTML = "M";
+				}
+				else {
+
+					if (memory == parseFloat(input)) {
+						memory = null;
+						memory_indicator.innerHTML = "";
+					}
+					else {
+						//nothing to do
+					}
+
+				}
+
+			}
+			else if (input == "") {
+
+				var disp = display.textContent;
+
+				if (display.textContent != "") {
+
+					if (memory) {
+						if (memory == parseFloat(disp)) {
+							memory = null;
+							memory_indicator.innerHTML = "";
+						}
+						else { 
+							//nothing to do
+						}
+					}
+					else {
+						memory = parseFloat(disp);
+						memory_indicator.innerHTML = "M";
+					}
+				}
+				else if (display.textContent == "") {
+					//nothing to do
+				}
+			}
+		});
+	}
+
+	function setMemoryRemain() {
+		document.getElementById("memory_rc").addEventListener("click", function() {
+			if (memory) {
+
+				if (memory == parseFloat(display.textContent)) {
+
+					if (memory == parseFloat(input)) {
+						memory = null;
+						memory_indicator.innerHTML = "";
+					}
+					else {
+						//nothing to do
+					}
+
+				}
+				else {
+					input = memory;
+					display.innerHTML = String(memory);
+				}
+			}
+			else {
+				//nothing to do
+			}
+		});
+	}
+
+</script>
+</body>
+</html>
